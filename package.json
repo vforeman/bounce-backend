@@ -21,6 +21,7 @@
     "express": "^4.11.0",
     "mongoose": "^3.8.21",
     "node-restful": "^0.1.17",
-    "postmates": "^1.0.2"
+    "postmates": "^1.0.2",
+    "underscore": "^1.7.0"
   }
 }
