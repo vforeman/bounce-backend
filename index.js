@@ -15,10 +15,10 @@ app.use(function(req, res, next) {
   next();
 });
 // parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }));
+// app.use(bodyParser.urlencoded({ extended: true }));
 // parse application/json
 app.use(bodyParser.json());
-app.use(express.query());
+//app.use(express.query());
 
 //DATABASE CONNECTION INITIALIZATION
 mongoose.connect('mongodb://admin:bounce@ec2-54-165-238-193.compute-1.amazonaws.com:27017/bounce');
@@ -37,6 +37,8 @@ ItemSchema = new Schema({
     available: Boolean,
     borrowers: String     //serialized array of borrower ids
 });
+var ItemModel = mongoose.model('Item', ItemSchema);
+
 LenderSchema = new Schema({
   name: String,
   address: String,
@@ -51,22 +53,27 @@ BorrowerSchema = new Schema({
   items: String     //serialized array of borrowed item ids
 });
 
-//ENDPOINT METHODS ASSIGNMENT
-item = app.item = restful.model('item', ItemSchema).methods(['get', 'post', 'put']);
-lender = app.lender = restful.model('lender', LenderSchema).methods(['get', 'post', 'put']);
-borrower = app.borrower = restful.model('borrower', BorrowerSchema).methods(['get', 'post', 'put']);
-
-// Function to get every item in the database
-item.route('all', function(req, res, next) {
-  res.send('Get all items');
+app.post('/items', function (req, res) {
+    var item;
+    console.log("POST: ");
+    console.log(req);
+    console.log(req.params);
+    console.log(req.body);
+    console.log(req.body.name);
+    console.log(req.body.description);
+    item = new ItemModel({
+        name: req.body.name,
+        description: req.body.description,
+    });
+    item.save(function(err) {
+        if (!err) {
+            return console.log("created");
+        } else {
+            return console.log(err);
+        }
+    });
+    return res.send(item);
 });
-
-//ENDPOINT METHOD REGISTRATION *****HAS TO BE LAST***
-item.register(app, '/items');
-lender.register(app, '/lenders');
-borrower.register(app, '/borrowers');
-
-
 
 app.listen(3000,function(){
   console.log("listening on port 3000");
